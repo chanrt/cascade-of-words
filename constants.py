@@ -11,7 +11,7 @@ class Constants:
 
         self.spawn_time = 1500
         self.spawn_prob = 0.4
-        self.word_speed = 100
+        self.word_speed = 20
 
         self.min_length = 4
         self.max_length = 10

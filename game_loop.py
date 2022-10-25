@@ -7,7 +7,6 @@ import pygame as pg
 
 from button import Button
 from constants import consts as c
-from game_over import game_over
 from text import Text
 
 
@@ -35,11 +34,23 @@ def game_loop(screen):
     score_text.set_font(c.word_font)
     score = 0
 
-    restart_button = Button(100, c.screen_height - 60, 80, 50, screen, "Restart")
-    quit_button = Button(c.screen_width - 100, c.screen_height - 60, 80, 50, screen, "Quit")
+    about_text = Text(c.screen_width // 2, c.screen_height - 35, "Developed by ChanRT | Fork me at GitHub", screen)
+    about_text.set_font(c.word_font)
+
+    restart_button = Button(100, c.screen_height - 25, 100, 40, screen, "Restart")
+    quit_button = Button(c.screen_width - 100, c.screen_height - 25, 100, 40, screen, "Quit")
+
+    pg.mixer.music.load(path.join(c.folder_path, "data", "bg_music.mp3"))
+    pg.mixer.music.play(-1)
+
+    word_finish = pg.mixer.Sound(path.join(c.folder_path, "data", "word_finish.wav"))
+    game_over = pg.mixer.Sound(path.join(c.folder_path, "data", "game_over.wav"))
 
     spawn_word = pg.USEREVENT + 1
     pg.time.set_timer(spawn_word, c.spawn_time)
+
+    spawn_faster = pg.USEREVENT + 2
+    pg.time.set_timer(spawn_faster, 20000)
 
     while True:
         start = time()
@@ -47,6 +58,7 @@ def game_loop(screen):
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                pg.mixer.music.stop()
                 return "exit", score
 
             if event.type == spawn_word:
@@ -57,8 +69,14 @@ def game_loop(screen):
                 words.append(new_word)
                 word_texts.append(random_word)
 
+            if event.type == spawn_faster:
+                c.spawn_time -= 50
+                if c.spawn_time < 1000:
+                    c.spawn_time = 1000
+
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
+                    pg.mixer.music.stop()
                     return "exit", score
                 if pg.K_a <= event.key <= pg.K_z:
                     user_input += chr(event.key).lower()
@@ -67,13 +85,12 @@ def game_loop(screen):
                         substring = user_input[len(user_input) - i:]
 
                         if substring in word_texts:
+                            word_finish.play()
                             word_texts.remove(substring)
                             word = get_word(words, substring)
                             words.remove(word)
                             score += len(substring)
                             score_text.set_text(f"Score: {score}")
-                if event.key == pg.K_g:
-                    return "game_over", score
 
             if event.type == pg.MOUSEMOTION:
                 mouse_pos = pg.mouse.get_pos()
@@ -93,6 +110,7 @@ def game_loop(screen):
                     score_text.set_text(f"Score: {score}")
 
                 if quit_button.left_clicked:
+                    pg.mixer.music.stop()
                     return "exit", score
 
             if event.type == pg.MOUSEBUTTONUP:
@@ -104,7 +122,9 @@ def game_loop(screen):
         for word in words:
             word.move_down(c.word_speed * c.dt)
 
-            if word.y >= c.screen_height:
+            if word.y > c.screen_height - 50:
+                pg.mixer.music.stop()
+                game_over.play()
                 return "game_over", score
 
         screen.fill(c.bg_color)
@@ -115,8 +135,11 @@ def game_loop(screen):
         pg.draw.rect(screen, c.titlebar_color, (0, 0, c.screen_width, 50))
         title.render()
         score_text.render()
+
+        pg.draw.rect(screen, c.titlebar_color, (0, c.screen_height - 50, c.screen_width, 50))
         restart_button.render()
         quit_button.render()
+        about_text.render()
 
         pg.display.flip()
         
