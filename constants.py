@@ -16,8 +16,9 @@ class Constants:
         self.min_length = 4
         self.max_length = 10
 
-        self.bg_color = pg.Color("black")
-        self.titlebar_color = pg.Color("blue")
+        self.bg_color = pg.Color("#222222")
+        self.click_color = pg.Color('#333333')
+        self.titlebar_color = pg.Color("#00008b")
 
         self.word_font = pg.font.Font(path.join(self.folder_path, "data", "merriweather.ttf"), 20)
         self.style_font = pg.font.Font(path.join(self.folder_path, "data", "motion_picture.ttf"), 40)

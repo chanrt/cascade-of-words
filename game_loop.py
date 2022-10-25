@@ -64,7 +64,7 @@ def game_loop(screen):
             if event.type == spawn_word:
                 random_word = english_words[randint(0, len(english_words) - 1)]
                 word_x = randint(100, c.screen_width - 100)
-                new_word = Text(word_x, 0, random_word, screen)
+                new_word = Text(word_x, 20, random_word, screen)
                 new_word.set_font(c.word_font)
                 words.append(new_word)
                 word_texts.append(random_word)
@@ -147,7 +147,7 @@ def game_loop(screen):
         c.set_dt(end - start)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     pg.init()
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     c.set_screen(screen)
