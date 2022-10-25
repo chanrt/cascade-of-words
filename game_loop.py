@@ -1,8 +1,11 @@
-from os import path
+from os import environ, path
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 from random import randint
 from time import time
 import pygame as pg
 
+from button import Button
 from constants import consts as c
 from text import Text
 
@@ -31,6 +34,9 @@ def game_loop(screen):
     score_text.set_font(c.word_font)
     score = 0
 
+    restart_button = Button(100, c.screen_height - 60, 80, 50, screen, "Restart")
+    quit_button = Button(c.screen_width - 100, c.screen_height - 60, 80, 50, screen, "Quit")
+
     spawn_word = pg.USEREVENT + 1
     pg.time.set_timer(spawn_word, c.spawn_time)
 
@@ -41,6 +47,7 @@ def game_loop(screen):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+
             if event.type == spawn_word:
                 random_word = english_words[randint(0, len(english_words) - 1)]
                 word_x = randint(100, c.screen_width - 100)
@@ -64,7 +71,31 @@ def game_loop(screen):
                             words.remove(word)
                             score += len(substring)
                             score_text.set_text(f"Score: {score}")
-                            
+
+            if event.type == pg.MOUSEMOTION:
+                mouse_pos = pg.mouse.get_pos()
+                restart_button.update(mouse_pos)
+                quit_button.update(mouse_pos)
+
+            if event.type == pg.MOUSEBUTTONDOWN:
+                mouse_pos = pg.mouse.get_pos()
+                click = event.button
+                restart_button.check_clicked(mouse_pos, click)
+                quit_button.check_clicked(mouse_pos, click)
+
+                if restart_button.left_clicked:
+                    words = []
+                    word_texts = []
+                    score = 0
+                    score_text.set_text(f"Score: {score}")
+
+                if quit_button.left_clicked:
+                    return
+
+            if event.type == pg.MOUSEBUTTONUP:
+                mouse_pos = pg.mouse.get_pos()
+                restart_button.check_released(mouse_pos, click)
+                quit_button.check_released(mouse_pos, click)
 
         for word in words:
             word.move_down(c.word_speed * c.dt)
@@ -77,6 +108,8 @@ def game_loop(screen):
         pg.draw.rect(screen, c.titlebar_color, (0, 0, c.screen_width, 50))
         title.render()
         score_text.render()
+        restart_button.render()
+        quit_button.render()
 
         pg.display.flip()
         
