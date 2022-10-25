@@ -7,6 +7,7 @@ import pygame as pg
 
 from button import Button
 from constants import consts as c
+from game_over import game_over
 from text import Text
 
 
@@ -46,7 +47,7 @@ def game_loop(screen):
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                return
+                return "exit", score
 
             if event.type == spawn_word:
                 random_word = english_words[randint(0, len(english_words) - 1)]
@@ -58,7 +59,7 @@ def game_loop(screen):
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    return
+                    return "exit", score
                 if pg.K_a <= event.key <= pg.K_z:
                     user_input += chr(event.key).lower()
 
@@ -71,6 +72,8 @@ def game_loop(screen):
                             words.remove(word)
                             score += len(substring)
                             score_text.set_text(f"Score: {score}")
+                if event.key == pg.K_g:
+                    return "game_over", score
 
             if event.type == pg.MOUSEMOTION:
                 mouse_pos = pg.mouse.get_pos()
@@ -90,15 +93,19 @@ def game_loop(screen):
                     score_text.set_text(f"Score: {score}")
 
                 if quit_button.left_clicked:
-                    return
+                    return "exit", score
 
             if event.type == pg.MOUSEBUTTONUP:
                 mouse_pos = pg.mouse.get_pos()
+                click = event.button
                 restart_button.check_released(mouse_pos, click)
                 quit_button.check_released(mouse_pos, click)
 
         for word in words:
             word.move_down(c.word_speed * c.dt)
+
+            if word.y >= c.screen_height:
+                return "game_over", score
 
         screen.fill(c.bg_color)
 
