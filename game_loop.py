@@ -27,8 +27,8 @@ def game_loop(screen):
     title = Text(c.screen_width // 2, 20, "Cascade of Words", screen)
     title.set_font(c.style_font)
 
-    score_text = Text(c.screen_width - 50, 20, "Score: 0", screen)
-    score_text.set_font(c.style_font)
+    score_text = Text(c.screen_width - 100, 20, "Score: 0", screen)
+    score_text.set_font(c.word_font)
     score = 0
 
     spawn_word = pg.USEREVENT + 1
